@@ -109,7 +109,7 @@
 
   XYCoordinate Sonar::GetPosition()
 {
-ruturn local_position;
+return local_position;
 }
 
 	
