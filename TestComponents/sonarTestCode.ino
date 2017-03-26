@@ -22,11 +22,11 @@ int RearLeftSonarTrigger = 44;
 
 //unsigned int TestNumber;
 
-Sonar sonarFront(1, FrontSonarTrigger, FrontSonarEcho);
-Sonar sonarFrontR(2, FrontRightSonarTrigger, FrontRightSonarEcho);
-Sonar sonarFrontL(3, FrontLeftSonarTrigger, FrontLeftSonarEcho);
-Sonar sonarRearR(4, RearRightSonarTrigger, RearRightSonarEcho);
-Sonar sonarRearL(5, RearLeftSonarTrigger, RearLeftSonarEcho);
+Sonar sonarFront(1, 0,0, FrontSonarTrigger, FrontSonarEcho);
+Sonar sonarFrontR(2, 0,0, FrontRightSonarTrigger, FrontRightSonarEcho);
+Sonar sonarFrontL(3, 0,0, FrontLeftSonarTrigger, FrontLeftSonarEcho);
+Sonar sonarRearR(4, 0,0, RearRightSonarTrigger, RearRightSonarEcho);
+Sonar sonarRearL(5, 0,0, RearLeftSonarTrigger, RearLeftSonarEcho);
 
 unsigned long startTime;
 
