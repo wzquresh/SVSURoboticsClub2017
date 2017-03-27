@@ -6,4 +6,5 @@ class Bump{
 	public:
 		Bump(int sensorID, long local_x, long local_y);
 		bool getValue();
+		XYCoordinate GetPosition();
 };
