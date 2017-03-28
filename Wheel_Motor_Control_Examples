@@ -1,5 +1,5 @@
-// connect motor controller pins to Arduino digital pins
-// motor one
+// connect motor controller pins to Arduino digital pins (any digital pins)
+// motor one 
 int enA = 10;
 int in1 = 9;
 int in2 = 8;
