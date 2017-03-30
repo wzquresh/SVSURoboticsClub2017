@@ -9,29 +9,21 @@
 // level detected.  The level of output without detectable sound is given 
 // as the value of VCC/2, ie. half of the power voltage, with sound 
 // vibration above and below this value.  
+#include <arduino.h>
+
 class Microphone_Sensor
 {
-		const int ID;
-		const int pin;
-	
+	const int ID;
+	const int pin;
+
 	public:
-		Microphone_Sensor(int microphone_ID, int microphone_pin)
-		{
-			ID = microphone_ID;
-			pin = microphone_pin;
-		}
-		
-		// get_id
-		// Returns an identifier for the microphone referred to by the particular instance of the object.
-		int get_id()
-		{
-			return ID;
-		}
-		
-		// get_value
-		// Returns the analog value read from the microphone sensor.
-		int get_value()
-		{
-			return analogRead(pin);
-		}
+	Microphone_Sensor(int microphone_ID, int microphone_pin);
+
+	// get_id
+	// Returns an identifier for the microphone referred to by the particular instance of the object.
+	int get_id();
+
+	// get_value
+	// Returns the analog value read from the microphone sensor.
+	int get_value();
 };
