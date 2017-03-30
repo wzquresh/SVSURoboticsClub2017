@@ -31,7 +31,7 @@ arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
  */
 const uint16_t MAX_NUMBER_OF_SAMPLES = 128; //This value MUST ALWAYS be a power of 2
 double signalFrequency = 3800; //was 1000
-double samplingFrequency = 7600; //was 5000
+double samplingFrequency = 7600; //was 5000  // We _HOPE_ it's at least 7.6kHz!!!!!
 uint8_t amplitude = 100;
 /*
    These are the input and output vectors
@@ -45,7 +45,7 @@ const uint16_t max_current_sample_group = 10;
 uint16_t current_sample_group = 0;
 
 double avg_total = 0;
-//unsigned long sampling_beginning_time;
+unsigned long sampling_beginning_time;
 
 #define SCL_INDEX 0x00
 #define SCL_TIME 0x01
@@ -76,24 +76,22 @@ void setup()
 	}
 // Serial.println("got to this point");
 	current_sample_number = 0;
-	//sampling_beginning_time = 0;
+	sampling_beginning_time = 0;
 }
 
 
 void loop()
 {
-/*
 	if(current_sample_number == 0)
 	{
 		sampling_beginning_time = micros();
 	}
-*/
 
 	if(current_sample_number == MAX_NUMBER_OF_SAMPLES)
 	{
-		
-		
-		//unsigned long sampling_window_time = micros() - sampling_beginning_time;
+		unsigned long sampling_window_time = micros() - sampling_beginning_time;
+		samplingFrequency = (1000000 * current_sample_number) / double(sampling_window_time);
+
 		//Build raw data 
 		//double cycles = (((current_sample_number-1) * signalFrequency) / samplingFrequency); //Number of signal cycles that the sampling will read
 		//for (uint8_t i = 0; i < current_sample_number; i++)
@@ -116,7 +114,7 @@ void loop()
 		//PrintVector(samples_real, (current_sample_number >> 1), SCL_FREQUENCY);
 		//double x = FFT.MajorPeak(samples_real, current_sample_number, samplingFrequency);
 		//Serial.println(x, 6);
-		//unsigned long calculated_sampling_frequency = sampling_window_time / current_sample_number;
+		//double avg_sampling_time = sampling_window_time / double(current_sample_number);
 		//Serial.print("Calculated sampling frequency:  ");
 		//Serial.println(calculated_sampling_frequency);
 		/*
@@ -174,6 +172,8 @@ void PrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 void OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 {
 	avg_total = 0;
+	for(uint16_t i = 0; i < bufferSize; ++i)
+		avg_total += vData[i];
 	for (uint16_t i = 0; i < bufferSize; i++)
 	{
 		double abscissa;
@@ -190,9 +190,10 @@ void OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 				abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
 				break;
 		}
-		avg_total += vData[i];
-		if(i > bufferSize - 6){
-			Serial.print(vData[i], 4);
+		if(i > bufferSize - 11){
+			Serial.print(abscissa, 0);
+			Serial.print("\t");
+			Serial.print((vData[i] * 100)/ avg_total, 4);
 			Serial.print("\t");
 		}
 	}
