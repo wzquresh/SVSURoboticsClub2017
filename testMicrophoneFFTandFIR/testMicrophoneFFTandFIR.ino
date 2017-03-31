@@ -1,13 +1,14 @@
+/*
 #include "Target_Signal_Detector.h"
 
 const uint16_t TARGET_FREQUENCY(3800);
 const uint16_t MIN_WINDOW_FREQUENCY(0.87 * TARGET_FREQUENCY);
 const uint16_t MAX_WINDOW_FREQUENCY(1.13 * TARGET_FREQUENCY);
-//const uint16_t MAX_NUMBER_OF_SAMPLES(128); //This value MUST ALWAYS be a power of 2
-//const uint16_t MAX_NUMBER_OF_WINDOW_GROUPS(128);
+const uint16_t MAX_NUMBER_OF_SAMPLES(128); //This value MUST ALWAYS be a power of 2
+const uint16_t MAX_NUMBER_OF_WINDOW_GROUPS(128);
 
-Microphone_Sensor microphone1(1, 1);
-Target_Signal_Detector frequency_detector1(&microphone1, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);//, MAX_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_WINDOW_GROUPS);
+Microphone_Sensor microphone1();
+Target_Signal_Detector frequency_detector1(&microphone1, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY, MAX_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_WINDOW_GROUPS);
 
 Target_Signal_Detector* frequency_detector(&frequency_detector1);
 
@@ -20,9 +21,9 @@ void loop()
 {
 	frequency_detector->loop();
 }
+*/
 
 
-/*
 #include <defs.h>
 #include <types.h>
 #include <arduinoFFT.h>
@@ -67,10 +68,31 @@ double samples_real[MAX_NUMBER_OF_SAMPLES];
 double samples_imag[MAX_NUMBER_OF_SAMPLES];
 uint16_t current_sample_number = 0;
 
-const uint16_t max_current_sample_group = 10;
-uint16_t current_sample_group = 0;
+const uint16_t MAX_FIR_SAMPLE_SIZE = 10;
+const double FIR_FILTER_THRESHOLD = 0.05;
+// Circular buffer stuff
+double FIR_Samples[MAX_FIR_SAMPLE_SIZE];
+int FIR_Sample_Head = 0;
+void FIR_Samples_Insert(double in){
+ FIR_Samples[(++FIR_Sample_Head)%MAX_FIR_SAMPLE_SIZE] = in;
+}
+void FIR_Samples_reset(){
+	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
+		FIR_Samples[i] = 0;
+}
+double FIR_Samples_Calculate_Result()
+{
+	double fir_total(0);
+	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
+		fir_total += FIR_Samples[i];
+	return fir_total/MAX_FIR_SAMPLE_SIZE;
+}
+	
+// end circular buffer stuff
+
 
 double avg_total = 0;
+double target_avg_total = 0;
 unsigned long sampling_beginning_time;
 
 #define SCL_INDEX 0x00
@@ -103,6 +125,8 @@ void setup()
 // Serial.println("got to this point");
 	current_sample_number = 0;
 	sampling_beginning_time = 0;
+	
+	FIR_Samples_reset();
 }
 
 
@@ -199,8 +223,19 @@ void PrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 void OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 {
 	avg_total = 0;
+	target_avg_total = 0;
+	int target_avg_count = 0;
 	for(uint16_t i = 0; i < bufferSize; ++i)
+	{
+		double abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
+		if(MIN_WINDOW_FREQUENCY <= abscissa && abscissa <= MAX_WINDOW_FREQUENCY)
+		{
+			target_avg_total += vData[i];
+			++target_avg_count;
+		}
 		avg_total += vData[i];
+	}
+
 	for (uint16_t i = 0; i < bufferSize; i++)
 	{
 		double abscissa;
@@ -224,8 +259,21 @@ void OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 			Serial.print("\t");
 		}
 	}
+
+	double overall_avg = avg_total/bufferSize;
+	double target_avg = target_avg_total/target_avg_count;
+	double target_normalized = target_avg/overall_avg;
+
+	FIR_Samples_Insert(target_normalized);
+
+	double FIR_filter_result(FIR_Samples_Calculate_Result());
+
 	Serial.print("\t");
 	Serial.print(avg_total/bufferSize,4);
+	Serial.print("\t");
+	Serial.print(FIR_filter_result, 4);
+	Serial.print("\t");
+	Serial.print((FIR_filter_result > FIR_FILTER_THRESHOLD) ? 1 : 0);
 	Serial.println();
 }
-*/
+
