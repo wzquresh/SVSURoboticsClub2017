@@ -1,4 +1,4 @@
-#include "Target_Window_Detector.h"
+#include "Target_Signal_Detector.h"
 
 
 #define SCL_INDEX 0x00
@@ -8,14 +8,16 @@
 #define Theta 6.2831 //2*Pi
 
 
-Target_Window_Detector::Target_Signal_Detector(Microphone_Sensor* pointer_to_microphone, double minimum_target_frequency, double maximum_target_frequency, uint_16t maximum_samples_per_sampling_window)
-	: microphone_ptr(pointer_to_microphone), MIN_TARGET_FREQUENCY(minimum_target_frequency), MAX_TARGET_FREQUENCY(maximum_target_frequency), MAX_NUMBER_OF_SAMPLES(maximum_samples_per_sampling_window)
+Target_Signal_Detector::Target_Signal_Detector(Microphone_Sensor* pointer_to_microphone, double minimum_target_frequency, double maximum_target_frequency)//, uint16_t maximum_samples_per_sampling_window, uint16_t max_sampling_window_grouping)
+	: microphone_ptr(pointer_to_microphone), MIN_TARGET_FREQUENCY(minimum_target_frequency), MAX_TARGET_FREQUENCY(maximum_target_frequency)//, MAX_NUMBER_OF_SAMPLES(maximum_samples_per_sampling_window), max_current_sample_group(max_sampling_window_grouping)
 {
+	//samples_real = new double[MAX_NUMBER_OF_SAMPLES];
+	//samples_real = new double[MAX_NUMBER_OF_SAMPLES];
 	reset_window();
 }
 
 
-void Target_Window_Detector::reset_window()
+void Target_Signal_Detector::reset_window()
 {
 	for (uint8_t i = 0; i < MAX_NUMBER_OF_SAMPLES; i++)
 	{
@@ -26,7 +28,7 @@ void Target_Window_Detector::reset_window()
 }
 
 
-void Target_Window_Detector::setup()
+void Target_Signal_Detector::setup()
 {
 	Serial.println("Ready");
 
@@ -40,7 +42,7 @@ void Target_Window_Detector::setup()
 }
 
 
-void Target_Window_Detector::loop()
+void Target_Signal_Detector::loop()
 {
 	if(current_sample_number == 0)
 	{
@@ -96,14 +98,14 @@ void Target_Window_Detector::loop()
 	else
 	{
 		//delayMicroseconds(20);
-		samples_real[current_sample_number++] = microphone1.get_value();
+		samples_real[current_sample_number++] = microphone_ptr->get_value();
 	}
 }
 
 
-void Target_Window_Detector::OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
+void Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 {
-	avg_total = 0;
+	double avg_total = 0;
 	for(uint16_t i = 0; i < bufferSize; ++i)
 		avg_total += vData[i];
 	for (uint16_t i = 0; i < bufferSize; i++)

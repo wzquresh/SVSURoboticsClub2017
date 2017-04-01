@@ -10,8 +10,8 @@ class wheel_motors{
 		int speed;
 
 	public:
+  
 		wheel_motors( int motor_ID, int in1_4, int in2_3);
 		void motors_action(int speeed, int direct);
-	
 
 };
