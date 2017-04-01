@@ -1,5 +1,6 @@
 #include "Target_Signal_Detector.h"
 
+//#define TARGET_MICROPHONE_DEBUG
 
 #define SCL_INDEX 0x00
 #define SCL_TIME 0x01
@@ -105,9 +106,21 @@ void Target_Signal_Detector::loop()
 
 void Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 {
-	double avg_total = 0;
+	avg_total = 0;
+	target_avg_total = 0;
+	target_avg_count = 0;
 	for(uint16_t i = 0; i < bufferSize; ++i)
+	{
+		double abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
+		if(MIN_TARGET_FREQUENCY <= abscissa && abscissa <= MAX_TARGET_FREQUENCY)
+		{
+			target_avg_total += vData[i];
+			++target_avg_count;
+		}
 		avg_total += vData[i];
+	}
+
+#ifdef TARGET_MICROPHONE_DEBUG
 	for (uint16_t i = 0; i < bufferSize; i++)
 	{
 		double abscissa;
@@ -131,7 +144,39 @@ void Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 			Serial.print("\t");
 		}
 	}
+#endif
+	double overall_avg = avg_total/bufferSize;
+	double target_avg = target_avg_total/target_avg_count;
+	double target_normalized = target_avg/overall_avg;
+
+	FIR_Samples_Insert(target_normalized);
+
+	double FIR_filter_result(FIR_Samples_Calculate_Result());
+
 	Serial.print("\t");
 	Serial.print(avg_total/bufferSize,4);
+	Serial.print("\t");
+	Serial.print(FIR_filter_result, 4);
+	Serial.print("\t");
+	Serial.print((FIR_filter_result > FIR_FILTER_THRESHOLD) ? 1 : 0);
 	Serial.println();
+}
+
+
+
+void Target_Signal_Detector::FIR_Samples_Insert(double in)
+{
+	FIR_Samples[(++FIR_Sample_Head)%MAX_FIR_SAMPLE_SIZE] = in;
+}
+void Target_Signal_Detector::FIR_Samples_reset()
+{
+	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
+		FIR_Samples[i] = 0;
+}
+double Target_Signal_Detector::FIR_Samples_Calculate_Result()
+{
+	double fir_total(0);
+	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
+		fir_total += FIR_Samples[i];
+	return fir_total/MAX_FIR_SAMPLE_SIZE;
 }
