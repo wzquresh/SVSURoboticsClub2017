@@ -24,7 +24,7 @@ class Sonar{
 //XYCoordinate local_postion;
   public:
 
-  Sonar(int Sonar_Name, long local_x, long local_y, int Sonar_Trigger_Pin, int Sonar_Echo_Pin);
+  Sonar(int Sonar_Name, /*long local_x, long local_y,*/ int Sonar_Trigger_Pin, int Sonar_Echo_Pin);
   int Get_Name();
 
   void Request_Reading();

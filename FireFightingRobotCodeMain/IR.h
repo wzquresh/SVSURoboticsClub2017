@@ -1,14 +1,12 @@
 #include <arduino.h>
 
 class IR{
-  public:
     
     int pin;
     int MAX_RANGE;
     int MIN_RANGE;
   
-  private:
-    
+  public:
     IR(int pinName, int MIN, int MAX);
     int flameCase();
 };

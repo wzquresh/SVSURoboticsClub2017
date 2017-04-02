@@ -164,7 +164,7 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 	Serial.println();
 #endif
 
-	return FIR_Samples_reset;
+	return FIR_filter_result;
 }
 
 

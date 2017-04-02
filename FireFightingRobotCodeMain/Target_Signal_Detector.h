@@ -37,7 +37,7 @@ class Target_Signal_Detector
 
 	void reset_window();
 	void setup();
-	void OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType);
+	bool OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType);
 
 	void FIR_Samples_Insert(double in);
 	void FIR_Samples_reset();

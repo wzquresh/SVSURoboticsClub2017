@@ -3,7 +3,9 @@
 #include "IR.h"
 #include "bumpsensor.h"
 #include "Sonar.h"
-#include "Pins.h"
+#include "wheel_motors.h"
+#include "Fan_Motor_Control.h"
+//#include "Pins.h"
 
 class SearchState:public CommandLoop{
   public:  
@@ -15,7 +17,7 @@ class SearchState:public CommandLoop{
   BumpCase bumpCase;
   enum CollisionCases{GOOD, RIGHT_ENCROACHING, LEFT_ENCROACHING, FRONT_ENCROACHING, REAR_ENCROACHING};
   CollisionCases sonarCase;
-  enum SonarState{sPrime, s1, s2, s3, s4, s5};
+  enum SonarState{sPrime, s1, s2, s3, s4, s5, s6};
   SonarState sonarState;
 
   //Inputs
@@ -24,46 +26,122 @@ class SearchState:public CommandLoop{
   #ifdef FLOURESCENT_LIGHTS
   const int RIGHT_MIN = 400;
   const int RIGHT_MAX = 780;
-  const int LEFT_MIN = 600
+  const int LEFT_MIN = 600;
   const int LEFT_MAX = 850;
   #else
   //INCANDECENT LIGHT
   const int RIGHT_MIN = 110;
   const int RIGHT_MAX = 475;
-  const int LEFT_MIN = 340
+  const int LEFT_MIN = 340;
   const int LEFT_MAX = 600;
   #endif
   
   enum MotorSpeeds{STOP = 0, SLOW = 80, MEDIUM = 90, FAST = 110};
+//Pins
+  int Microphone_Pin = 35; //Digital
 
-  IR irRight(RightIR, RIGHT_MIN, RIGHT_MAX);
-  IR irLeft(LeftIR, LEFT_MIN, LEFT_MAX);
+  // Wheel Motor Pins
+  int RightMotor_Speed_Pin = 2;
+  int RightMotor_Forward_Pin = 24;
+  int RightMotor_Reverse_Pin = 22;
+  int LeftMotor_Speed_Pin = 3;
+  int LeftMotor_Forward_Pin = 28;
+  int LeftMotor_Reverse_Pin = 26;
 
-  Sonar sonarFront(1, FrontSonarTrigger, FrontSonarEcho);
-  Sonar sonarFrontR(2, FrontRightSonarTrigger, FrontRightSonarEcho);
-  Sonar sonarFrontL(3, FrontLeftSonarTrigger, FrontLeftSonarEcho);
-  Sonar sonarRear(4, RearSonarEcho, RearSonarTrigger);
-  Sonar sonarRearR(5, RightSonarTrigger, RightSonarEcho);
-  Sonar sonarRearL(6, LeftSonarTrigger, LeftSonarEcho);
+  //LED's
+  int GreenLED = 0;
+  int RedLED = 0;
 
-  Bump bumpFront(FrontBump);
-  Bump bumpFrontR(FrontRightBump);
-  Bump bumpFrontL(FrontLeftBump);
-  Bump bumpR(RightBump);
-  Bump bumpL(LeftBump);
-  Bump bumpRearR(RearRightBump);
-  Bump bumpRearL(RearLeftBump);
+  //SONAR SENSOR PINS -- 6 total
+  int FrontSonarEcho = 51;
+  int FrontSonarTrigger = 50;
+  int FrontRightSonarEcho = 49;
+  int FrontRightSonarTrigger = 48;
+  int FrontLeftSonarEcho = 53;
+  int FrontLeftSonarTrigger = 52;
+  int RearSonarEcho = 43;
+  int RearSonarTrigger = 42;
+  int RightSonarEcho = 45;
+  int RightSonarTrigger = 44;
+  int LeftSonarEcho = 47;
+  int LeftSonarTrigger = 46;
+
+  //BUMP SENSOR PINS -- 7 total
+  int FrontBump = 41;
+  int FrontRightBump = 38;
+  int FrontLeftBump = 40;
+  int RightBump = 36;
+  int LeftBump = 39;
+  int RearRightBump = 34;
+  int RearLeftBump = 37;
+
+  //IR SENSOR PINS
+  int RightIR = 0; //Analog
+  int LeftIR = 1;  //Analog
+
+  //FAN PIN
+  int FanPWM = 0;
+
+  IR irRight;
+  IR irLeft;
+
+  Sonar sonarFront;
+  Sonar sonarFrontR;
+  Sonar sonarFrontL;
+  Sonar sonarRear;
+  Sonar sonarRearR;
+  Sonar sonarRearL;
+
+  Bump bumpFront;
+  Bump bumpFrontR;
+  Bump bumpFrontL;
+  Bump bumpR;
+  Bump bumpL;
+  Bump bumpRearR;
+  Bump bumpRearL;
 
   //Outputs
-  Motor motorR(RightMotor);
-  Motor motorL(LeftMotor);
+  wheel_motors motorR;
+  wheel_motors motorL;
   
   bool fireExtinguished;
 
   //LED red(RedLED);
   //LED green(GreenLED);
 
-  Fan_Motor_Control fan(FanPWM);
+  Fan_Motor_Control fan;
+
+
+SearchState()
+	: 
+  irRight(RightIR, RIGHT_MIN, RIGHT_MAX),
+  irLeft(LeftIR, LEFT_MIN, LEFT_MAX),
+
+  sonarFront(1, FrontSonarTrigger, FrontSonarEcho),
+  sonarFrontR(2, FrontRightSonarTrigger, FrontRightSonarEcho),
+  sonarFrontL(3, FrontLeftSonarTrigger, FrontLeftSonarEcho),
+  sonarRear(4, RearSonarEcho, RearSonarTrigger),
+  sonarRearR(5, RightSonarTrigger, RightSonarEcho),
+  sonarRearL(6, LeftSonarTrigger, LeftSonarEcho),
+
+  bumpFront(FrontBump),
+  bumpFrontR(FrontRightBump),
+  bumpFrontL(FrontLeftBump),
+  bumpR(RightBump),
+  bumpL(LeftBump),
+  bumpRearR(RearRightBump),
+  bumpRearL(RearLeftBump),
+
+  //Outputs
+  motorR(RightMotor_Speed_Pin, RightMotor_Forward_Pin, RightMotor_Reverse_Pin),
+  motorL(LeftMotor_Speed_Pin, LeftMotor_Forward_Pin, LeftMotor_Reverse_Pin),
+  
+  //LED red(RedLED);
+  //LED green(GreenLED);
+
+  fan(FanPWM)
+{
+ }
   
   void setup(){
     flameCase = NO_FLAME;
@@ -74,15 +152,15 @@ class SearchState:public CommandLoop{
     fireExtinguished = false;
     
     //pinMode(Microphone_Pin, INPUT);
-    pinMode(RightMotor, OUTPUT);
-    pinMode(LeftMotor, OUTPUT);
+    //pinMode(RightMotor, OUTPUT);
+    //pinMode(LeftMotor, OUTPUT);
     
     pinMode(GreenLED, OUTPUT);
     pinMode(RedLED, OUTPUT);
     
     pinMode(FrontSonarEcho, INPUT);
     pinMode(FrontSonarTrigger, OUTPUT);
-    pinMode(FrontRightSonarEcho,INPUT;
+    pinMode(FrontRightSonarEcho,INPUT);
     pinMode(FrontRightSonarTrigger, OUTPUT);
     pinMode(FrontLeftSonarEcho, INPUT);
     pinMode(FrontLeftSonarTrigger, OUTPUT);
@@ -104,7 +182,7 @@ class SearchState:public CommandLoop{
     
     
     pinMode(RightIR, INPUT);
-    pinMode(LeftIR, INPUT;
+    pinMode(LeftIR, INPUT);
     
     
     pinMode(FanPWM, OUTPUT);
@@ -133,7 +211,7 @@ class SearchState:public CommandLoop{
         motorL.motors_action(SLOW, 0);
         motorR.motors_action(SLOW, 0);
         delay(50);
-        if(sonarCase == GO_RIGHT){
+        if(sonarCase == LEFT_ENCROACHING){
           motorR.motors_action(SLOW, 0);
           motorL.motors_action(MEDIUM, 1);
           delay(40);
@@ -172,7 +250,7 @@ class SearchState:public CommandLoop{
         motorR.motors_action(STOP, 1);
         motorL.motors_action(STOP, 1);
         
-        motorR.motors_action(SLOW, 1)
+        motorR.motors_action(SLOW, 1);
         delay(42);
         motorL.motors_action(SLOW, 1);
         break;
