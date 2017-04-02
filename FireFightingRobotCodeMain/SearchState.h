@@ -3,11 +3,12 @@
 #include "IR.h"
 #include "bumpsensor.h"
 #include "Sonar.h"
+#include "Pins.h"
 
 class SearchState::public CommandLoop{
   public:  
-  enum State{MIC_READ, SEARCH, END};
-  State current;
+  //enum State{MIC_READ, SEARCH, END};
+  //State current;
   enum FlameCases{NO_FLAME, ONE_FAR, ONE_CLOSE, BOTH_FAR, BOTH_CLOSE};
   FlameCases flameCase;
   enum BumpCase{FRONT, RIGHT, LEFT, REAR_R, REAR_L, NO_BUMP};
@@ -16,45 +17,6 @@ class SearchState::public CommandLoop{
   CollisionCases sonarCase;
   enum SonarState{sPrime, s1, s2, s3, s4, s5};
   SonarState sonarState;
-
-  //Pins
-  int Microphone_Pin = 35; //Digital
-  int RightMotor = 0;
-  int LeftMotor = 0;
-
-  //LED's
-  int GreenLED = 0;
-  int RedLED = 0;
-
-  //SONAR SENSOR PINS -- 6 total
-  int FrontSonarEcho = 51;
-  int FrontSonarTrigger = 50;
-  int FrontRightSonarEcho = 49;
-  int FrontRightSonarTrigger = 48;
-  int FrontLeftSonarEcho = 53;
-  int FrontLeftSonarTrigger = 52;
-  int RearSonarEcho = 43;
-  int RearSonarTrigger = 42;
-  int RightSonarEcho = 45;
-  int RightSonarTrigger = 44;
-  int LeftSonarEcho = 47;
-  int LeftSonarTrigger = 46;
-
-  //BUMP SENSOR PINS -- 7 total
-  int FrontBump = 41;
-  int FrontRightBump = 38;
-  int FrontLeftBump = 40;
-  int RightBump = 36;
-  int LeftBump = 39;
-  int RearRightBump = 34;
-  int RearLeftBump = 37;
-
-  //IR SENSOR PINS
-  int RightIR = 0; //Analog
-  int LeftIR = 1;  //Analog
-
-  //FAN PIN
-  int FanPWM = 0;
 
   //Inputs
   //FLOURESCENT LIGHT
@@ -71,19 +33,11 @@ class SearchState::public CommandLoop{
   const int LEFT_MIN = 340
   const int LEFT_MAX = 600;
   #endif
+  
+  enum MotorSpeeds{STOP = 0, SLOW = 80, MEDIUM = 90, FAST = 110};
 
   IR irRight(RightIR, RIGHT_MIN, RIGHT_MAX);
   IR irLeft(LeftIR, LEFT_MIN, LEFT_MAX);
-
-
-  const uint16_t TARGET_FREQUENCY(3800);
-  const uint16_t MIN_WINDOW_FREQUENCY(0.87 * TARGET_FREQUENCY);
-  const uint16_t MAX_WINDOW_FREQUENCY(1.13 * TARGET_FREQUENCY);
-  //const uint16_t MAX_NUMBER_OF_SAMPLES(128);
-  //const uint16_t MAX_NUMBER_OF_WINDOW_GROUPS(128);
-  Microphone_Sensor microphone1(1, Microphone_Pin);
-  Target_Signal_Detector detector(&microphone1, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);//, MAX_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_WINDOW_GROUPS);
-  Target_Signal_Detector* frequency_detector(&detector);
 
   Sonar sonarFront(1, FrontSonarTrigger, FrontSonarEcho);
   Sonar sonarFrontR(2, FrontRightSonarTrigger, FrontRightSonarEcho);
@@ -119,7 +73,7 @@ class SearchState::public CommandLoop{
     
     fireExtinguished = false;
     
-    pinMode(Microphone, INPUT);
+    //pinMode(Microphone_Pin, INPUT);
     pinMode(RightMotor, OUTPUT);
     pinMode(LeftMotor, OUTPUT);
     
