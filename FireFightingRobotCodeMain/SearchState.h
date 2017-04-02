@@ -5,7 +5,7 @@
 #include "Sonar.h"
 #include "Pins.h"
 
-class SearchState::public CommandLoop{
+class SearchState:public CommandLoop{
   public:  
   //enum State{MIC_READ, SEARCH, END};
   //State current;

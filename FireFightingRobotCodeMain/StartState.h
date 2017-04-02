@@ -1,7 +1,7 @@
 #include "CommandLoop.h"
 #include "Target_Signal_Detector.h"
 
-class StartState::public CommandLoop{
+class StartState:public CommandLoop{
   
  
   Microphone_Sensor microphone1;
