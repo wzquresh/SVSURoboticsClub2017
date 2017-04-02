@@ -1,5 +1,5 @@
 #include <arduino.h>
-#include "XYCoordinate.h"
+//#include "XYCoordinate.h"
 class Sonar{
   enum Sonar_State_Values {STARTUP_IDLE, SENSOR_IDLE, TRIGGER, TRIGGERING, ECHO_WAITING, ECHO_READING, ECHO_FINISHED};
   Sonar_State_Values Current_State;
@@ -21,7 +21,7 @@ class Sonar{
   //unsigned long Trigger_end;
   //unsigned long Echo_wait_time;
   //unsigned long Echo_end_time;
-XYCoordinate local_postion;
+//XYCoordinate local_postion;
   public:
 
   Sonar(int Sonar_Name, long local_x, long local_y, int Sonar_Trigger_Pin, int Sonar_Echo_Pin);
@@ -40,5 +40,5 @@ XYCoordinate local_postion;
   //unsigned long trigger_time();
   //unsigned long echo_wait_time();
   //unsigned long echo_time();
-XYCoordinate GetPosition();
+//XYCoordinate GetPosition();
 };

@@ -1,5 +1,5 @@
 #include "Sonar.h" 
- Sonar::Sonar(int Sonar_Name, long local_x, long local_y, int Sonar_Trigger_Pin, int Sonar_Echo_Pin){
+ Sonar::Sonar(int Sonar_Name, /*long local_x, long local_y,*/ int Sonar_Trigger_Pin, int Sonar_Echo_Pin){
     Sonar_ID = Sonar_Name;
     Trigger_Pin = Sonar_Trigger_Pin;
     Echo_Pin = Sonar_Echo_Pin;
@@ -10,8 +10,8 @@
     //Trigger_end = 0;
     //Echo_wait_time = 0;
     //Echo_end_time = 0;
-	local_position.x = local_x; 
-	local_postion.y = local_y;
+//	local_position.x = local_x; 
+//	local_postion.y = local_y;
   }
 
   int Sonar::Get_Name()
@@ -107,11 +107,11 @@
     }       
   }
 
-  XYCoordinate Sonar::GetPosition()
+  /*XYCoordinate Sonar::GetPosition()
 {
 return local_position;
 }
-
+*/
 	
   //unsigned long Sonar::trigger_time()
 //{
