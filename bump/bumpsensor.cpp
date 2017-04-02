@@ -8,7 +8,7 @@ Bump(int sensorID, long local_x, long local_y){
 }
 
 bool Bump::getValue(){
-	return digitalRead(bumpPin) == HIGH;
+	return digitalRead(bumpPin) == LOW;
 }
 
 XYCoordinate Bump::GetPosition()
