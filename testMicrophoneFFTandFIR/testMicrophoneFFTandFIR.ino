@@ -44,7 +44,7 @@ void loop()
 
 #include "microphone.h"
 
-const int MICROPHONE1_PIN(1);
+const int MICROPHONE1_PIN(3);
 
 Microphone_Sensor microphone1(1, MICROPHONE1_PIN);
 

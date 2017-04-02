@@ -38,7 +38,7 @@ class SearchState:public CommandLoop{
   
   enum MotorSpeeds{STOP = 0, SLOW = 80, MEDIUM = 90, FAST = 110};
 //Pins
-  int Microphone_Pin = 35; //Digital
+  int Microphone_Pin = 3; //Analog (read, ie "ANALOG IN")
 
   // Wheel Motor Pins
   int RightMotor_Speed_Pin = 2;
@@ -49,8 +49,10 @@ class SearchState:public CommandLoop{
   int LeftMotor_Reverse_Pin = 26;
 
   //LED's
-  int GreenLED = 0;
-  int RedLED = 0;
+  // NB:  MOVE GreenLED TO APPROPRIATE LOCATION IN CODE
+
+  int GreenLED = 34;
+  int RedLED = 36;
 
   //SONAR SENSOR PINS -- 6 total
   int FrontSonarEcho = 51;
@@ -70,9 +72,9 @@ class SearchState:public CommandLoop{
   int FrontBump = 41;
   int FrontRightBump = 38;
   int FrontLeftBump = 40;
-  int RightBump = 36;
+  int RightBump = 30;
   int LeftBump = 39;
-  int RearRightBump = 34;
+  int RearRightBump = 32;
   int RearLeftBump = 37;
 
   //IR SENSOR PINS
@@ -188,8 +190,9 @@ SearchState()
     pinMode(FanPWM, OUTPUT);
   }
   int loop(){
+    Serial.print("Searching");
     sonarRun();
-  
+    Serial.print("Checking");
     if(bumpFront.getValue())
       bumpCase = FRONT;
     else if(bumpFrontR.getValue() || bumpR.getValue())
@@ -202,7 +205,7 @@ SearchState()
       bumpCase = REAR_L;
     else
       bumpCase = NO_BUMP;
-    
+    Serial.print("END BUMP CHECK");
     //Proper call for motors: motorL.motors_action(speed, direction)
     //direction 1 forward, 0 backward
     
@@ -257,6 +260,8 @@ SearchState()
       default:
         break;    
     }
+
+    Serial.print("END BUMP CASE");
     
     if(sonarFrontR.getsonarvalue() < 7 || sonarRearR.getsonarvalue() < 7)
       sonarCase = RIGHT_ENCROACHING;
@@ -268,6 +273,8 @@ SearchState()
       sonarCase = REAR_ENCROACHING;
     else
       sonarCase = GOOD;
+
+    Serial.print("END SONAR CHECK");
     
     switch(sonarCase){
       case GOOD:
@@ -303,6 +310,8 @@ SearchState()
         break;
     }
 
+    Serial.print("END SONAR CASE");
+
     if(irRight.flameCase() == 0 && irLeft.flameCase() ==0)
       flameCase = NO_FLAME;
     if(irRight.flameCase() == 0 && irLeft.flameCase() == 1 || irRight.flameCase() == 1 && irLeft.flameCase() == 0)
@@ -313,7 +322,9 @@ SearchState()
       flameCase = ONE_CLOSE;
     if(irRight.flameCase() == 2 && irLeft.flameCase() == 2)
       flameCase = BOTH_CLOSE;
-      
+
+    Serial.print("END FLAME CHECK");
+    
     switch(flameCase){
       case NO_FLAME:
         digitalWrite(RedLED, LOW);//red.setValue(1);
@@ -367,6 +378,7 @@ SearchState()
         //end robot
         //break;
     }
+    Serial.print("END FLAME CASE");
   }
   
   bool FireExtinguished(){
@@ -376,10 +388,12 @@ SearchState()
   void sonarRun(){
     switch(sonarState){
       case sPrime:
+        Serial.print("Priming Read");
         sonarFront.Request_Reading();
         sonarState = s1;
         break;
       case s1:
+        Serial.print("Sonar Case s1");
         sonarFront.Take_Reading();
         //Serial.print("Sonar Front Available");
         //Serial.println(sonarFront.readingAvailable());
@@ -389,6 +403,7 @@ SearchState()
         }
         break;
       case s2:
+        Serial.print("Sonar Case s2");
         sonarFrontR.Take_Reading();
         if(sonarFrontR.readingAvailable()){
           sonarFrontL.Request_Reading();
@@ -396,6 +411,7 @@ SearchState()
         }
         break;
       case s3:
+        Serial.print("Sonar Case s3");
         sonarFrontL.Take_Reading();
         if(sonarFrontL.readingAvailable()){
           sonarRearR.Request_Reading();
@@ -403,6 +419,7 @@ SearchState()
         }
         break;
       case s4:
+        Serial.print("Sonar Case s4");
         sonarRearR.Take_Reading();
         if(sonarRearR.readingAvailable()){
           sonarRearL.Request_Reading();
@@ -410,6 +427,7 @@ SearchState()
         }
         break;
       case s5:
+        Serial.print("Sonar Case s5");
         sonarRearL.Take_Reading();
         if(sonarRearL.readingAvailable()){
           sonarRear.Request_Reading();
@@ -417,6 +435,7 @@ SearchState()
         }
         break;
       case s6:
+        Serial.print("Sonar Case s6");
         sonarRear.Take_Reading();
         if(sonarRear.readingAvailable()){
           sonarFront.Request_Reading();

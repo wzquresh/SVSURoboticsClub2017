@@ -138,7 +138,7 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 				abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
 				break;
 		}
-		if(i > bufferSize - 11){
+		if(i > bufferSize - 9){
 			Serial.print(abscissa, 0);
 			Serial.print("\t");
 			Serial.print((vData[i] * 100)/ avg_total, 4);

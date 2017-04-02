@@ -23,5 +23,8 @@ public:
   void setup(){}
   int loop(){
     receivedSound = frequency_detector1.loop();
+    Serial.print("Sound Received Value: ");
+    Serial.print(receivedSound);
+    return (receivedSound == true ? 1 : 0);
   }
 };
