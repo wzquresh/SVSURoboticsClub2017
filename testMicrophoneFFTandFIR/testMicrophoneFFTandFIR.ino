@@ -2,13 +2,13 @@
 #include "Target_Signal_Detector.h"
 
 const uint16_t TARGET_FREQUENCY(3800);
-const uint16_t MIN_WINDOW_FREQUENCY(0.87 * TARGET_FREQUENCY);
-const uint16_t MAX_WINDOW_FREQUENCY(1.13 * TARGET_FREQUENCY);
+const uint16_t MIN_TARGET_FREQUENCY(0.87 * TARGET_FREQUENCY);
+const uint16_t MAX_TARGET_FREQUENCY(1.13 * TARGET_FREQUENCY);
 const uint16_t MAX_NUMBER_OF_SAMPLES(128); //This value MUST ALWAYS be a power of 2
 const uint16_t MAX_NUMBER_OF_WINDOW_GROUPS(128);
 
 Microphone_Sensor microphone1();
-Target_Signal_Detector frequency_detector1(&microphone1, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY, MAX_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_WINDOW_GROUPS);
+Target_Signal_Detector frequency_detector1(&microphone1, MIN_TARGET_FREQUENCY, MAX_TARGET_FREQUENCY, MAX_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_WINDOW_GROUPS);
 
 Target_Signal_Detector* frequency_detector(&frequency_detector1);
 
@@ -55,8 +55,8 @@ arduinoFFT FFT = arduinoFFT(); // Create FFT object
  //
 const uint16_t MAX_NUMBER_OF_SAMPLES = 128; //This value MUST ALWAYS be a power of 2
 const double SIGNALFREQUENCY = 3800; //was 1000
-const double MIN_WINDOW_FREQUENCY(0.87 * SIGNALFREQUENCY);
-const double MAX_WINDOW_FREQUENCY(1.13 * SIGNALFREQUENCY);
+const double MIN_TARGET_FREQUENCY(0.87 * SIGNALFREQUENCY);
+const double MAX_TARGET_FREQUENCY(1.13 * SIGNALFREQUENCY);
 
 double samplingFrequency = 7600; //was 5000  // We _HOPE_ it's at least 7.6kHz!!!!!
 uint8_t amplitude = 100;
@@ -228,7 +228,7 @@ void OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 	for(uint16_t i = 0; i < bufferSize; ++i)
 	{
 		double abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
-		if(MIN_WINDOW_FREQUENCY <= abscissa && abscissa <= MAX_WINDOW_FREQUENCY)
+		if(MIN_TARGET_FREQUENCY <= abscissa && abscissa <= MAX_TARGET_FREQUENCY)
 		{
 			target_avg_total += vData[i];
 			++target_avg_count;

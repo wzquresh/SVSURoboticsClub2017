@@ -1,5 +1,6 @@
 #include "Target_Signal_Detector.h"
 
+//#define TARGET_MICROPHONE_DEBUG
 
 #define SCL_INDEX 0x00
 #define SCL_TIME 0x01
@@ -9,7 +10,7 @@
 
 
 Target_Signal_Detector::Target_Signal_Detector(Microphone_Sensor* pointer_to_microphone, double minimum_target_frequency, double maximum_target_frequency)//, uint16_t maximum_samples_per_sampling_window, uint16_t max_sampling_window_grouping)
-	: microphone_ptr(pointer_to_microphone), MIN_TARGET_FREQUENCY(minimum_target_frequency), MAX_TARGET_FREQUENCY(maximum_target_frequency)//, MAX_NUMBER_OF_SAMPLES(maximum_samples_per_sampling_window), max_current_sample_group(max_sampling_window_grouping)
+	: microphone_ptr(pointer_to_microphone), MIN_TARGET_FREQUENCY(minimum_target_frequency), MAX_TARGET_FREQUENCY(maximum_target_frequency), detected(false)//, MAX_NUMBER_OF_SAMPLES(maximum_samples_per_sampling_window), max_current_sample_group(max_sampling_window_grouping)
 {
 	//samples_real = new double[MAX_NUMBER_OF_SAMPLES];
 	//samples_real = new double[MAX_NUMBER_OF_SAMPLES];
@@ -42,7 +43,7 @@ void Target_Signal_Detector::setup()
 }
 
 
-void Target_Signal_Detector::loop()
+bool Target_Signal_Detector::loop()
 {
 	if(current_sample_number == 0)
 	{
@@ -86,7 +87,7 @@ void Target_Signal_Detector::loop()
 		else
 			while(1); // Run Once 
 		*/
-			OurPrintVector(samples_real, (current_sample_number >> 1), SCL_FREQUENCY);
+			detected = OurPrintVector(samples_real, (current_sample_number >> 1), SCL_FREQUENCY);
 			reset_window();
     
     /*
@@ -100,14 +101,27 @@ void Target_Signal_Detector::loop()
 		//delayMicroseconds(20);
 		samples_real[current_sample_number++] = microphone_ptr->get_value();
 	}
+	return detected;
 }
 
 
-void Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
+bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, uint8_t scaleType)
 {
-	double avg_total = 0;
+	avg_total = 0;
+	target_avg_total = 0;
+	target_avg_count = 0;
 	for(uint16_t i = 0; i < bufferSize; ++i)
+	{
+		double abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
+		if(MIN_TARGET_FREQUENCY <= abscissa && abscissa <= MAX_TARGET_FREQUENCY)
+		{
+			target_avg_total += vData[i];
+			++target_avg_count;
+		}
 		avg_total += vData[i];
+	}
+
+#ifdef TARGET_MICROPHONE_DEBUG
 	for (uint16_t i = 0; i < bufferSize; i++)
 	{
 		double abscissa;
@@ -131,7 +145,43 @@ void Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 			Serial.print("\t");
 		}
 	}
+#endif
+	double overall_avg = avg_total/bufferSize;
+	double target_avg = target_avg_total/target_avg_count;
+	double target_normalized = target_avg/overall_avg;
+
+	FIR_Samples_Insert(target_normalized);
+
+	double FIR_filter_result(FIR_Samples_Calculate_Result());
+
+#ifdef TARGET_MICROPHONE_DEBUG
 	Serial.print("\t");
 	Serial.print(avg_total/bufferSize,4);
+	Serial.print("\t");
+	Serial.print(FIR_filter_result, 4);
+	Serial.print("\t");
+	Serial.print((FIR_filter_result > FIR_FILTER_THRESHOLD) ? 1 : 0);
 	Serial.println();
+#endif
+
+	return FIR_Samples_reset;
+}
+
+
+
+void Target_Signal_Detector::FIR_Samples_Insert(double in)
+{
+	FIR_Samples[(++FIR_Sample_Head)%MAX_FIR_SAMPLE_SIZE] = in;
+}
+void Target_Signal_Detector::FIR_Samples_reset()
+{
+	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
+		FIR_Samples[i] = 0;
+}
+double Target_Signal_Detector::FIR_Samples_Calculate_Result()
+{
+	double fir_total(0);
+	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
+		fir_total += FIR_Samples[i];
+	return fir_total/MAX_FIR_SAMPLE_SIZE;
 }
