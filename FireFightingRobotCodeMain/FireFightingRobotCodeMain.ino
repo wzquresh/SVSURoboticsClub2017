@@ -42,12 +42,12 @@ void loop(){
 			//end of robot commands
 			//delete command;  // NB:  startstate_ptr is the same as command, do NOT delete it!
 		}
-		while(1){}
+		//while(1){}
 	}
   }
-  Serial.print("\t");
-  Serial.print("Current State: ");
-  Serial.print(command->id());
+  //Serial.print("\t");
+  //Serial.print("Current State: ");
+  //Serial.print(command->id());
   Serial.print("\t");
   Serial.println();
 }

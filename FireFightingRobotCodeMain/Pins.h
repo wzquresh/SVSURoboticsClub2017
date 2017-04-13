@@ -4,8 +4,8 @@
   int LeftMotor = 0;
 
   //LED's
-  int GreenLED = 0;
-  int RedLED = 0;
+  int GreenLED = 34;
+  int RedLED = 36;
 
   //SONAR SENSOR PINS -- 6 total
   int FrontSonarEcho = 51;

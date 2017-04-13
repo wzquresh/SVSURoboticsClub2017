@@ -190,9 +190,9 @@ SearchState()
     pinMode(FanPWM, OUTPUT);
   }
   int loop(){
-    Serial.print("Searching");
+    //Serial.print("Searching");
     sonarRun();
-    Serial.print("Checking");
+    //Serial.print("Checking");
     if(bumpFront.getValue())
       bumpCase = FRONT;
     else if(bumpFrontR.getValue() || bumpR.getValue())
@@ -205,7 +205,7 @@ SearchState()
       bumpCase = REAR_L;
     else
       bumpCase = NO_BUMP;
-    Serial.print("END BUMP CHECK");
+    //Serial.print("END BUMP CHECK");
     //Proper call for motors: motorL.motors_action(speed, direction)
     //direction 1 forward, 0 backward
     
@@ -261,7 +261,7 @@ SearchState()
         break;    
     }
 
-    Serial.print("END BUMP CASE");
+    //Serial.print("END BUMP CASE");
     
     if(sonarFrontR.getsonarvalue() < 7 || sonarRearR.getsonarvalue() < 7)
       sonarCase = RIGHT_ENCROACHING;
@@ -273,8 +273,9 @@ SearchState()
       sonarCase = REAR_ENCROACHING;
     else
       sonarCase = GOOD;
+    //Serial.print(sonarCase);
 
-    Serial.print("END SONAR CHECK");
+    //Serial.print("END SONAR CHECK");
     
     switch(sonarCase){
       case GOOD:
@@ -293,7 +294,7 @@ SearchState()
         break;
       case RIGHT_ENCROACHING:
         //Go until opposite wall is <12 away
-        motorR.motors_action(FAST, 1);      
+        motorR.motors_action(FAST, 1);//Change back to 1 when done checking 
         break;
       case LEFT_ENCROACHING:
         motorL.motors_action(FAST, 1);
@@ -310,7 +311,7 @@ SearchState()
         break;
     }
 
-    Serial.print("END SONAR CASE");
+    //Serial.print("END SONAR CASE");
 
     if(irRight.flameCase() == 0 && irLeft.flameCase() ==0)
       flameCase = NO_FLAME;
@@ -323,7 +324,7 @@ SearchState()
     if(irRight.flameCase() == 2 && irLeft.flameCase() == 2)
       flameCase = BOTH_CLOSE;
 
-    Serial.print("END FLAME CHECK");
+    //Serial.print("END FLAME CHECK");
     
     switch(flameCase){
       case NO_FLAME:
@@ -378,7 +379,7 @@ SearchState()
         //end robot
         //break;
     }
-    Serial.print("END FLAME CASE");
+    //Serial.print("END FLAME CASE");
   }
   
   bool FireExtinguished(){
@@ -395,6 +396,8 @@ SearchState()
       case s1:
         Serial.print("Sonar Case s1");
         sonarFront.Take_Reading();
+        Serial.print("\t");
+        Serial.print(sonarFront.getsonarvalue());
         //Serial.print("Sonar Front Available");
         //Serial.println(sonarFront.readingAvailable());
         if(sonarFront.readingAvailable()){
@@ -405,6 +408,8 @@ SearchState()
       case s2:
         Serial.print("Sonar Case s2");
         sonarFrontR.Take_Reading();
+        Serial.print("\t");
+        Serial.print(sonarFrontR.getsonarvalue());
         if(sonarFrontR.readingAvailable()){
           sonarFrontL.Request_Reading();
           sonarState = s3;
@@ -413,6 +418,8 @@ SearchState()
       case s3:
         Serial.print("Sonar Case s3");
         sonarFrontL.Take_Reading();
+        Serial.print("\t");
+        Serial.print(sonarFrontL.getsonarvalue());
         if(sonarFrontL.readingAvailable()){
           sonarRearR.Request_Reading();
           sonarState = s4;
@@ -421,6 +428,8 @@ SearchState()
       case s4:
         Serial.print("Sonar Case s4");
         sonarRearR.Take_Reading();
+        Serial.print("\t");
+        Serial.print(sonarRearR.getsonarvalue());
         if(sonarRearR.readingAvailable()){
           sonarRearL.Request_Reading();
           sonarState = s5;
@@ -429,6 +438,8 @@ SearchState()
       case s5:
         Serial.print("Sonar Case s5");
         sonarRearL.Take_Reading();
+        Serial.print("\t");
+        Serial.print(sonarRearL.getsonarvalue());
         if(sonarRearL.readingAvailable()){
           sonarRear.Request_Reading();
           sonarState = s6;
@@ -437,6 +448,8 @@ SearchState()
       case s6:
         Serial.print("Sonar Case s6");
         sonarRear.Take_Reading();
+        Serial.print("\t");
+        Serial.print(sonarRear.getsonarvalue());
         if(sonarRear.readingAvailable()){
           sonarFront.Request_Reading();
           sonarState = s1;
