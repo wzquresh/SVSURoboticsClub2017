@@ -6,7 +6,7 @@ const uint16_t MAX_WINDOW_FREQUENCY(1.13 * TARGET_FREQUENCY);
 //const uint16_t MAX_NUMBER_OF_SAMPLES(128); //This value MUST ALWAYS be a power of 2
 //const uint16_t MAX_NUMBER_OF_WINDOW_GROUPS(128);
 
-Microphone_Sensor microphone1(1, 3);
+Microphone_Sensor microphone1(1, 2);
 Target_Signal_Detector frequency_detector1(&microphone1, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);//, MAX_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_WINDOW_GROUPS);
 
 Target_Signal_Detector* frequency_detector(&frequency_detector1);

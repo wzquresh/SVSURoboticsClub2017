@@ -5,7 +5,7 @@
 
 CommandLoop *command;
 
-int Microphone_Pin = 35; //Digital
+int Microphone_Pin = 2; //Analog
 
 const uint16_t TARGET_FREQUENCY(3800);
 const uint16_t MIN_WINDOW_FREQUENCY(0.87 * TARGET_FREQUENCY);
