@@ -1,11 +1,11 @@
 #include <arduino.h>
+#include "Pins.h"
 #include "CommandLoop.h"
 #include "IR.h"
 #include "bumpsensor.h"
 #include "Sonar.h"
 #include "wheel_motors.h"
 #include "Fan_Motor_Control.h"
-//#include "Pins.h"
 
 class SearchState:public CommandLoop{
   public:  
@@ -37,6 +37,7 @@ class SearchState:public CommandLoop{
   #endif
   
   enum MotorSpeeds{STOP = 0, SLOW = 80, MEDIUM = 90, FAST = 110};
+  /*
 //Pins
   int Microphone_Pin = 3; //Analog (read, ie "ANALOG IN")
 
@@ -83,7 +84,7 @@ class SearchState:public CommandLoop{
 
   //FAN PIN
   int FanPWM = 0;
-
+*/
   IR irRight;
   IR irLeft;
 
@@ -157,6 +158,8 @@ SearchState()
     //pinMode(RightMotor, OUTPUT);
     //pinMode(LeftMotor, OUTPUT);
     
+    setup_pins();
+    /*
     pinMode(GreenLED, OUTPUT);
     pinMode(RedLED, OUTPUT);
     
@@ -188,6 +191,7 @@ SearchState()
     
     
     pinMode(FanPWM, OUTPUT);
+    */
   }
   int loop(){
     Serial.print("Searching");

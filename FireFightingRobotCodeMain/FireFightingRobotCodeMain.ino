@@ -1,11 +1,8 @@
-#include "CommandLoop.h"
+//#include "Pins.h"
 #include "StartState.h"
 #include "SearchState.h"
-//#include "Pins.h"
 
 CommandLoop *command;
-
-int Microphone_Pin = 2; //Analog
 
 const uint16_t TARGET_FREQUENCY(3800);
 const uint16_t MIN_WINDOW_FREQUENCY(0.87 * TARGET_FREQUENCY);
@@ -27,7 +24,7 @@ void loop(){
 			delete command;  // NB:  startstate_ptr is the same as command, do NOT delete it!
 			command = new SearchState();
       command->setup();
-      digitalWrite(static_cast<SearchState*>(command)->GreenLED, LOW);
+      digitalWrite(GreenLED, LOW);
       //Serial.print("Start State Ending");
 		}
 	}
