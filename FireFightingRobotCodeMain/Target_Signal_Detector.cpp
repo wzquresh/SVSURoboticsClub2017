@@ -121,7 +121,7 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 		avg_total += vData[i];
 	}
 
-#ifdef TARGET_MICROPHONE_DEBUG
+#ifdef TARGET_MICROPHONE_DETAILS_DEBUG
 	for (uint16_t i = 0; i < bufferSize; i++)
 	{
 		double abscissa;
@@ -140,9 +140,9 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 		}
 		if(i > bufferSize - 9){
 			Serial.print(abscissa, 0);
-			Serial.print("\t");
+			Serial.print("  ");
 			Serial.print((vData[i] * 100)/ avg_total, 4);
-			Serial.print("\t");
+			Serial.print("  ");
 		}
 	}
 #endif
@@ -154,13 +154,13 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 
 	double FIR_filter_result(FIR_Samples_Calculate_Result());
 
-#ifdef TARGET_MICROPHONE_DEBUG
-	Serial.print("\t");
+#ifdef TARGET_MICROPHONE_SUMMARY_DEBUG
 	Serial.print(avg_total/bufferSize,4);
-	Serial.print("\t");
+	Serial.print("  ");
 	Serial.print(FIR_filter_result, 4);
-	Serial.print("\t");
+	Serial.print("  ");
 	Serial.print((FIR_filter_result > FIR_FILTER_THRESHOLD) ? 1 : 0);
+	Serial.print("\t");
 #endif
 
 	return FIR_filter_result;

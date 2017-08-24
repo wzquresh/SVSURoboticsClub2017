@@ -99,24 +99,61 @@ SearchState()
 
   fan(FanPWM)
 {
- }
-  
-  void setup(){
     flameCase = NO_FLAME;
     sonarState = sPrime;
     bumpCase = NO_BUMP;
     sonarCase = GOOD;
     
     fireExtinguished = false;
+ }
+  
+  void setup(){
   }
+
   int loop(){
 #ifdef SEARCH_STATE_SONAR_CHECK_DEBUG
     Serial.print("Sonar Checking: ");
 #endif
     sonarRun();
 #ifdef SEARCH_STATE_SONAR_CHECK_DEBUG
+    Serial.print("Sonar Done");
     Serial.print("\t");
 #endif
+
+#ifdef SEARCH_STATE_SONAR_SUMMARY_DEBUG
+    Serial.print("Sonar Summary: ");
+    Serial.print(sonarFront.getsonarvalue());
+    Serial.print(" ");
+    Serial.print(sonarFrontR.getsonarvalue());
+    Serial.print(" ");
+    Serial.print(sonarRearR.getsonarvalue());
+    Serial.print(" ");
+    Serial.print(sonarRear.getsonarvalue());
+    Serial.print(" ");
+    Serial.print(sonarRearL.getsonarvalue());
+    Serial.print(" ");
+    Serial.print(sonarFrontL.getsonarvalue());
+    Serial.print("\t");
+#endif
+
+#ifdef SEARCH_STATE_BUMP_SUMMARY_DEBUG
+    Serial.print("Bump Summary: ");
+    Serial.print(bumpFront.getValue());
+    Serial.print(" ");
+    Serial.print(bumpFrontR.getValue());
+    Serial.print(" ");
+    Serial.print(bumpR.getValue());
+    Serial.print(" ");
+    Serial.print(bumpRearR.getValue());
+    Serial.print(" ");
+    Serial.print(bumpRearL.getValue());
+    Serial.print(" ");
+    Serial.print(bumpL.getValue());
+    Serial.print(" ");
+    Serial.print(bumpFrontL.getValue());
+    Serial.print("\t");
+#endif
+
 #ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
     Serial.print("Bump Checking: ");
 #endif
@@ -392,6 +429,14 @@ SearchState()
     Serial.print("End Flame Check");
 #endif
     
+#ifdef SEARCH_STATE_FLAME_SUMMARY_DEBUG
+    Serial.print("Flame Summary: ");
+    Serial.print(irLeft.flameCase());
+    Serial.print(" ");
+    Serial.print(irRight.flameCase());
+    Serial.print("\t");
+#endif
+
 #ifdef SEARCH_STATE_FLAME_REACTION_DEBUG
     Serial.print("Flame Reaction ");
 #endif
