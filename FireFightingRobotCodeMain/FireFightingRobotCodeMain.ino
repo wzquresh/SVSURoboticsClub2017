@@ -41,13 +41,13 @@ void loop(){
 	{
 		SearchState* searchstate_ptr(static_cast<SearchState*>(command));
    //Serial.print("Search State Starting");
-     searchstate_ptr->loop();
+     //searchstate_ptr->loop();
 		if(searchstate_ptr->FireExtinguished()){
       //Serial.print("Search State Starting");
 			//end of robot commands
 			//delete command;  // NB:  startstate_ptr is the same as command, do NOT delete it!
-		}
 		while(1){}
+		}
 	}
   }
 #ifdef DEBUG_PRINTING
