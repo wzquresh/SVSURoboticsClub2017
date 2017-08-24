@@ -1,7 +1,5 @@
 #include "Target_Signal_Detector.h"
 
-//#define TARGET_MICROPHONE_DEBUG
-
 #define SCL_INDEX 0x00
 #define SCL_TIME 0x01
 #define SCL_FREQUENCY 0x02
@@ -31,7 +29,9 @@ void Target_Signal_Detector::reset_window()
 
 void Target_Signal_Detector::setup()
 {
-	Serial.println("Ready");
+#ifdef TARGET_MICROPHONE_DEBUG
+	Serial.println("Target Signal Detector Ready");
+#endif
 
 	for (uint8_t i = 0; i < MAX_NUMBER_OF_SAMPLES; i++)
 	{
@@ -161,7 +161,6 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 	Serial.print(FIR_filter_result, 4);
 	Serial.print("\t");
 	Serial.print((FIR_filter_result > FIR_FILTER_THRESHOLD) ? 1 : 0);
-	Serial.println();
 #endif
 
 	return FIR_filter_result;

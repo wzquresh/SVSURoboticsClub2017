@@ -1,6 +1,7 @@
 #include <defs.h>
 #include <types.h>
 #include <arduinoFFT.h>
+#include "Debug_Toggles.h"
 #include "microphone.h"
 
 class Target_Signal_Detector

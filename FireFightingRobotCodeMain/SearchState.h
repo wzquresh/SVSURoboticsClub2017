@@ -1,4 +1,5 @@
 #include <arduino.h>
+#include "Debug_Toggles.h"
 #include "Pins.h"
 #include "CommandLoop.h"
 #include "IR.h"
@@ -6,6 +7,7 @@
 #include "Sonar.h"
 #include "wheel_motors.h"
 #include "Fan_Motor_Control.h"
+
 
 class SearchState:public CommandLoop{
   public:  
@@ -37,54 +39,7 @@ class SearchState:public CommandLoop{
   #endif
   
   enum MotorSpeeds{STOP = 0, SLOW = 80, MEDIUM = 90, FAST = 110};
-  /*
-//Pins
-  int Microphone_Pin = 3; //Analog (read, ie "ANALOG IN")
 
-  // Wheel Motor Pins
-  int RightMotor_Speed_Pin = 2;
-  int RightMotor_Forward_Pin = 24;
-  int RightMotor_Reverse_Pin = 22;
-  int LeftMotor_Speed_Pin = 3;
-  int LeftMotor_Forward_Pin = 28;
-  int LeftMotor_Reverse_Pin = 26;
-
-  //LED's
-  // NB:  MOVE GreenLED TO APPROPRIATE LOCATION IN CODE
-
-  int GreenLED = 34;
-  int RedLED = 36;
-
-  //SONAR SENSOR PINS -- 6 total
-  int FrontSonarEcho = 51;
-  int FrontSonarTrigger = 50;
-  int FrontRightSonarEcho = 49;
-  int FrontRightSonarTrigger = 48;
-  int FrontLeftSonarEcho = 53;
-  int FrontLeftSonarTrigger = 52;
-  int RearSonarEcho = 43;
-  int RearSonarTrigger = 42;
-  int RightSonarEcho = 45;
-  int RightSonarTrigger = 44;
-  int LeftSonarEcho = 47;
-  int LeftSonarTrigger = 46;
-
-  //BUMP SENSOR PINS -- 7 total
-  int FrontBump = 41;
-  int FrontRightBump = 38;
-  int FrontLeftBump = 40;
-  int RightBump = 30;
-  int LeftBump = 39;
-  int RearRightBump = 32;
-  int RearLeftBump = 37;
-
-  //IR SENSOR PINS
-  int RightIR = 0; //Analog
-  int LeftIR = 1;  //Analog
-
-  //FAN PIN
-  int FanPWM = 0;
-*/
   IR irRight;
   IR irLeft;
 
@@ -153,66 +108,83 @@ SearchState()
     sonarCase = GOOD;
     
     fireExtinguished = false;
-    
-    //pinMode(Microphone_Pin, INPUT);
-    //pinMode(RightMotor, OUTPUT);
-    //pinMode(LeftMotor, OUTPUT);
-    
-    setup_pins();
-    /*
-    pinMode(GreenLED, OUTPUT);
-    pinMode(RedLED, OUTPUT);
-    
-    pinMode(FrontSonarEcho, INPUT);
-    pinMode(FrontSonarTrigger, OUTPUT);
-    pinMode(FrontRightSonarEcho,INPUT);
-    pinMode(FrontRightSonarTrigger, OUTPUT);
-    pinMode(FrontLeftSonarEcho, INPUT);
-    pinMode(FrontLeftSonarTrigger, OUTPUT);
-    pinMode(RearSonarEcho, INPUT);
-    pinMode(RearSonarTrigger, OUTPUT);
-    pinMode(RightSonarEcho, INPUT);
-    pinMode(RightSonarTrigger, OUTPUT);
-    pinMode(LeftSonarEcho, INPUT);
-    pinMode(LeftSonarTrigger, OUTPUT);
-    
-    
-    pinMode(FrontBump, INPUT);
-    pinMode(FrontRightBump, INPUT);
-    pinMode(FrontLeftBump, INPUT);
-    pinMode(RightBump, INPUT);
-    pinMode(LeftBump, INPUT);
-    pinMode(RearRightBump, INPUT);
-    pinMode(RearLeftBump, INPUT);
-    
-    
-    pinMode(RightIR, INPUT);
-    pinMode(LeftIR, INPUT);
-    
-    
-    pinMode(FanPWM, OUTPUT);
-    */
   }
   int loop(){
-    Serial.print("Searching");
+#ifdef SEARCH_STATE_SONAR_CHECK_DEBUG
+    Serial.print("Sonar Checking: ");
+#endif
     sonarRun();
-    Serial.print("Checking");
+#ifdef SEARCH_STATE_SONAR_CHECK_DEBUG
+    Serial.print("\t");
+#endif
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    Serial.print("Bump Checking: ");
+#endif
     if(bumpFront.getValue())
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    {
+#endif
       bumpCase = FRONT;
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    	Serial.print("Bumped Front ");
+    }
+#endif
     else if(bumpFrontR.getValue() || bumpR.getValue())
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    {
+#endif
       bumpCase = RIGHT;
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    	Serial.print("Bumped Front Right OR Right ");
+    }
+#endif
     else if(bumpFrontL.getValue() || bumpL.getValue())
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    {
+#endif
       bumpCase = LEFT;
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    	Serial.print("Bumped Front Left OR Left ");
+    }
+#endif
     else if(bumpRearR.getValue())
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    {
+#endif
       bumpCase = REAR_R;
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    	Serial.print("Bumped Rear Right ");
+    }
+#endif
     else if(bumpRearL.getValue())
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    {
+#endif
       bumpCase = REAR_L;
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    	Serial.print("Bumped Rear Left ");
+    }
+#endif
     else
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    {
+#endif
       bumpCase = NO_BUMP;
-    Serial.print("END BUMP CHECK");
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    	Serial.print("No Bump ");
+    }
+#endif
+#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
+    Serial.print("\t");
+#endif
+
+
     //Proper call for motors: motorL.motors_action(speed, direction)
     //direction 1 forward, 0 backward
     
+#ifdef SEARCH_STATE_BUMP_REACTION_DEBUG
+    Serial.print("Bump Reaction ");
+#endif
     switch(bumpCase){
       case FRONT:
         motorL.motors_action(SLOW, 0);
@@ -265,21 +237,69 @@ SearchState()
         break;    
     }
 
-    Serial.print("END BUMP CASE");
+#ifdef SEARCH_STATE_BUMP_REACTION_DEBUG
+    Serial.print("End Bump Reaction");
+    Serial.print("\t");
+#endif
     
-    if(sonarFrontR.getsonarvalue() < 7 || sonarRearR.getsonarvalue() < 7)
-      sonarCase = RIGHT_ENCROACHING;
-    else if(sonarFrontL.getsonarvalue() < 7 || sonarRearL.getsonarvalue() < 7)
-      sonarCase = LEFT_ENCROACHING;
-    else if(sonarFront.getsonarvalue() < 7)
-      sonarCase = FRONT_ENCROACHING;
-    else if(sonarRear.getsonarvalue() < 7)
-      sonarCase = REAR_ENCROACHING;
-    else
-      sonarCase = GOOD;
 
-    Serial.print("END SONAR CHECK");
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("Sonar Encroachment Check ");
+#endif
+    if(sonarFrontR.getsonarvalue() < 7 || sonarRearR.getsonarvalue() < 7)
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+  {
+#endif
+      sonarCase = RIGHT_ENCROACHING;
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("Right Sonar ");
+  }
+#endif
+    else if(sonarFrontL.getsonarvalue() < 7 || sonarRearL.getsonarvalue() < 7)
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+  {
+#endif
+      sonarCase = LEFT_ENCROACHING;
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("Left Sonar ");
+  }
+#endif
+    else if(sonarFront.getsonarvalue() < 7)
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+  {
+#endif
+      sonarCase = FRONT_ENCROACHING;
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("Front Sonar ");
+  }
+#endif
+    else if(sonarRear.getsonarvalue() < 7)
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+  {
+#endif
+      sonarCase = REAR_ENCROACHING;
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("Rear Sonar ");
+  }
+#endif
+    else
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+  {
+#endif
+      sonarCase = GOOD;
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("None ");
+  }
+#endif
+
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_CHECKING_DEBUG
+    Serial.print("End Sonar Encroachment Check");
+    Serial.print("\t");
+#endif
     
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_REACTION_DEBUG
+    Serial.print("Sonar Encroachment Reaction ");
+#endif
     switch(sonarCase){
       case GOOD:
         motorR.motors_action(MEDIUM, 1);
@@ -314,21 +334,67 @@ SearchState()
         break;
     }
 
-    Serial.print("END SONAR CASE");
+#ifdef SEARCH_STATE_SONAR_ENCROACHMENT_REACTION_DEBUG
+    Serial.print("End Sonar Encroachment Reaction");
+    Serial.print("\t");
+#endif
 
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("Flame Check ");
+#endif
     if(irRight.flameCase() == 0 && irLeft.flameCase() ==0)
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    {
+#endif
       flameCase = NO_FLAME;
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("Not detected ");
+    }
+#endif
     if(irRight.flameCase() == 0 && irLeft.flameCase() == 1 || irRight.flameCase() == 1 && irLeft.flameCase() == 0)
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    {
+#endif
       flameCase = ONE_FAR;
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("One far ");
+    }
+#endif
     if(irRight.flameCase() == 1 && irLeft.flameCase() == 1)
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    {
+#endif
       flameCase = BOTH_FAR;
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("Both far ");
+    }
+#endif
     if(irRight.flameCase() == 0 && irLeft.flameCase() == 2 || irRight.flameCase() == 1 && irLeft.flameCase() == 2 || irRight.flameCase() == 2 && irLeft.flameCase() == 0 || irRight.flameCase() == 2 && irLeft.flameCase() == 1)
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    {
+#endif
       flameCase = ONE_CLOSE;
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("One close ");
+    }
+#endif
     if(irRight.flameCase() == 2 && irLeft.flameCase() == 2)
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    {
+#endif
       flameCase = BOTH_CLOSE;
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("Both close ");
+    }
+#endif
 
-    Serial.print("END FLAME CHECK");
+#ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
+    Serial.print("End Flame Check");
+#endif
     
+#ifdef SEARCH_STATE_FLAME_REACTION_DEBUG
+    Serial.print("Flame Reaction ");
+#endif
     switch(flameCase){
       case NO_FLAME:
         digitalWrite(RedLED, LOW);//red.setValue(1);
@@ -382,7 +448,10 @@ SearchState()
         //end robot
         //break;
     }
-    Serial.print("END FLAME CASE");
+#ifdef SEARCH_STATE_FLAME_REACTION_DEBUG
+    Serial.print("End Flame Reaction");
+    Serial.print("\t");
+#endif
   }
   
   bool FireExtinguished(){
@@ -392,13 +461,17 @@ SearchState()
   void sonarRun(){
     switch(sonarState){
       case sPrime:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Priming Read");
+#endif
         sonarFront.Request_Reading();
         sonarState = s1;
         break;
       case s1:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s1");
         sonarFront.Take_Reading();
+#endif
         //Serial.print("Sonar Front Available");
         //Serial.println(sonarFront.readingAvailable());
         if(sonarFront.readingAvailable()){
@@ -407,7 +480,9 @@ SearchState()
         }
         break;
       case s2:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s2");
+#endif
         sonarFrontR.Take_Reading();
         if(sonarFrontR.readingAvailable()){
           sonarFrontL.Request_Reading();
@@ -415,7 +490,9 @@ SearchState()
         }
         break;
       case s3:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s3");
+#endif
         sonarFrontL.Take_Reading();
         if(sonarFrontL.readingAvailable()){
           sonarRearR.Request_Reading();
@@ -423,7 +500,9 @@ SearchState()
         }
         break;
       case s4:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s4");
+#endif
         sonarRearR.Take_Reading();
         if(sonarRearR.readingAvailable()){
           sonarRearL.Request_Reading();
@@ -431,7 +510,9 @@ SearchState()
         }
         break;
       case s5:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s5");
+#endif
         sonarRearL.Take_Reading();
         if(sonarRearL.readingAvailable()){
           sonarRear.Request_Reading();
@@ -439,7 +520,9 @@ SearchState()
         }
         break;
       case s6:
+#ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s6");
+#endif
         sonarRear.Take_Reading();
         if(sonarRear.readingAvailable()){
           sonarFront.Request_Reading();
@@ -450,6 +533,4 @@ SearchState()
   
   static const int unique_id = 2;
   int id(){return unique_id;}
-  
-  
 };

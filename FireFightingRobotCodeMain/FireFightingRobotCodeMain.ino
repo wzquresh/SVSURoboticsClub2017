@@ -10,12 +10,20 @@ const uint16_t MAX_WINDOW_FREQUENCY(1.13 * TARGET_FREQUENCY);
 
 
 void setup(){
+#ifdef DEBUG_PRINTING
     Serial.begin(19200);
+#endif
+  setup_pins();
 
   command = new StartState(1, Microphone_Pin, TARGET_FREQUENCY, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);
 }
 
 void loop(){
+#ifdef PRINT_CURRENT_CONMAND_STATE_DEBUG
+  Serial.print("Current State: ");
+  Serial.print(command->id());
+  Serial.print("\t");
+#endif
   switch(command -> loop()){
     case StartState::unique_id:
 	{
@@ -42,9 +50,7 @@ void loop(){
 		while(1){}
 	}
   }
-  Serial.print("\t");
-  Serial.print("Current State: ");
-  Serial.print(command->id());
-  Serial.print("\t");
+#ifdef DEBUG_PRINTING
   Serial.println();
+#endif
 }
