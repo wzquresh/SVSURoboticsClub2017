@@ -46,7 +46,7 @@
 
   //FAN PIN
 
-  int FanPWM = 0;  // PWM/Digital
+  int FanPWM = 4;  // PWM/Digital
 
 void setup_pins(){
     //pinMode(Microphone_Pin, INPUT);  // Already within microphone.cpp code.
