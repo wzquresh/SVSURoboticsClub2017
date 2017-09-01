@@ -8,11 +8,12 @@
 
 
 Target_Signal_Detector::Target_Signal_Detector(Microphone_Sensor* pointer_to_microphone, double minimum_target_frequency, double maximum_target_frequency)//, uint16_t maximum_samples_per_sampling_window, uint16_t max_sampling_window_grouping)
-	: microphone_ptr(pointer_to_microphone), MIN_TARGET_FREQUENCY(minimum_target_frequency), MAX_TARGET_FREQUENCY(maximum_target_frequency), detected(false)//, MAX_NUMBER_OF_SAMPLES(maximum_samples_per_sampling_window), max_current_sample_group(max_sampling_window_grouping)
+	: microphone_ptr(pointer_to_microphone), MIN_TARGET_FREQUENCY(minimum_target_frequency), MAX_TARGET_FREQUENCY(maximum_target_frequency), detected(false), FIR_Sample_Head(0), current_sample_number(0)//, MAX_NUMBER_OF_SAMPLES(maximum_samples_per_sampling_window), max_current_sample_group(max_sampling_window_grouping)
 {
 	//samples_real = new double[MAX_NUMBER_OF_SAMPLES];
 	//samples_real = new double[MAX_NUMBER_OF_SAMPLES];
 	reset_window();
+	FIR_Samples_reset();
 }
 
 
@@ -122,6 +123,7 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 	}
 
 #ifdef TARGET_MICROPHONE_DETAILS_DEBUG
+	Serial.print("Microphone Details: ");
 	for (uint16_t i = 0; i < bufferSize; i++)
 	{
 		double abscissa;
@@ -138,12 +140,12 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 				abscissa = ((i * 1.0 * samplingFrequency) / MAX_NUMBER_OF_SAMPLES);
 				break;
 		}
-		if(i > bufferSize - 9){
+		//if(i > bufferSize - 9){
 			Serial.print(abscissa, 0);
 			Serial.print("  ");
 			Serial.print((vData[i] * 100)/ avg_total, 4);
 			Serial.print("  ");
-		}
+		//}
 	}
 #endif
 	double overall_avg = avg_total/bufferSize;
@@ -155,7 +157,18 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 	double FIR_filter_result(FIR_Samples_Calculate_Result());
 
 #ifdef TARGET_MICROPHONE_SUMMARY_DEBUG
-	Serial.print(avg_total/bufferSize,4);
+	Serial.print(" || ");
+	Serial.print(avg_total,4);
+	Serial.print("  ");
+	Serial.print(overall_avg,4);
+	Serial.print("  ");
+	Serial.print(target_avg_total,4);
+	Serial.print("  ");
+	Serial.print(target_avg_count,4);
+	Serial.print("  ");
+	Serial.print(target_avg,4);
+	Serial.print("  ");
+	Serial.print(target_normalized,4);
 	Serial.print("  ");
 	Serial.print(FIR_filter_result, 4);
 	Serial.print("  ");
@@ -182,5 +195,9 @@ double Target_Signal_Detector::FIR_Samples_Calculate_Result()
 	double fir_total(0);
 	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
 		fir_total += FIR_Samples[i];
+#ifdef TARGET_MICROPHONE_DETAILS_DEBUG
+	Serial.print(FIR_filter_result, 4);
+	Serial.print("  ");
+#endif
 	return fir_total/MAX_FIR_SAMPLE_SIZE;
 }
