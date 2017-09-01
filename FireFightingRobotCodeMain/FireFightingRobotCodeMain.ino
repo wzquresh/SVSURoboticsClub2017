@@ -16,6 +16,7 @@ void setup(){
   setup_pins();
 
   command = new StartState(1, Microphone_Pin, TARGET_FREQUENCY, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);
+      command->setup();
 }
 
 void loop(){
@@ -24,7 +25,8 @@ void loop(){
   Serial.print(command->id());
   Serial.print("\t");
 #endif
-  switch(command -> loop()){
+  command->loop();
+  switch(command -> id()){
     case StartState::unique_id:
 	{
 		StartState* startstate_ptr = static_cast<StartState*>(command);
