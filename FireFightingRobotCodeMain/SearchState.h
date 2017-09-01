@@ -491,7 +491,7 @@ SearchState()
         digitalWrite(RedLED, LOW);
         fireExtinguished = true;
         //end robot
-        //break;
+        break;
     }
 #ifdef SEARCH_STATE_FLAME_REACTION_DEBUG
     Serial.print("End Flame Reaction");
@@ -515,10 +515,8 @@ SearchState()
       case s1:
 #ifdef SEARCH_STATE_SONAR_READING_DEBUG
         Serial.print("Sonar Case s1");
-        sonarFront.Take_Reading();
 #endif
-        //Serial.print("Sonar Front Available");
-        //Serial.println(sonarFront.readingAvailable());
+        sonarFront.Take_Reading();
         if(sonarFront.readingAvailable()){
           sonarFrontR.Request_Reading();
           sonarState = s2;
