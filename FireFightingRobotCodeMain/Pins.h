@@ -6,10 +6,10 @@
   int Microphone_Pin = 2; //Analog In:  A2
 
   // Drive Motors
-  int RightMotor_Speed_Pin = 2; // PWM/Digital
+  int RightMotor_Speed_Pin = 3; // PWM/Digital
   int RightMotor_Forward_Pin = 24;
   int RightMotor_Reverse_Pin = 22;
-  int LeftMotor_Speed_Pin = 3; // PWM/Digital
+  int LeftMotor_Speed_Pin = 4; // PWM/Digital
   int LeftMotor_Forward_Pin = 28;
   int LeftMotor_Reverse_Pin = 26;
 
@@ -46,7 +46,7 @@
 
   //FAN PIN
 
-  int FanPWM = 4;  // PWM/Digital
+  int FanPWM = 5;  // PWM/Digital
 
 void setup_pins(){
     //pinMode(Microphone_Pin, INPUT);  // Already within microphone.cpp code.
