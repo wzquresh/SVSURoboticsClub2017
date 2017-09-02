@@ -17,6 +17,7 @@ void setup(){
 
   command = new StartState(1, Microphone_Pin, TARGET_FREQUENCY, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);
       command->setup();
+    digitalWrite(GreenLED, HIGH);
 }
 
 void loop(){
@@ -31,9 +32,11 @@ void loop(){
 	{
 		StartState* startstate_ptr = static_cast<StartState*>(command);
 		if(startstate_ptr->ReceivedTargetSound()){
+#ifndef ONLY_DEBUG_MICROPHONE
 			delete command;  // NB:  startstate_ptr is the same as command, do NOT delete it!
 			command = new SearchState();
       command->setup();
+#endif
       digitalWrite(GreenLED, LOW);
       //Serial.print("Start State Ending");
 		}
