@@ -74,13 +74,13 @@ void setup_pins(){
     pinMode(LeftSonarTrigger, OUTPUT);
     
     
-    pinMode(FrontBump, INPUT);
-    pinMode(FrontRightBump, INPUT);
-    pinMode(FrontLeftBump, INPUT);
-    pinMode(RightBump, INPUT);
-    pinMode(LeftBump, INPUT);
-    pinMode(RearRightBump, INPUT);
-    pinMode(RearLeftBump, INPUT);
+    pinMode(FrontBump, INPUT_PULLUP);
+    pinMode(FrontRightBump, INPUT_PULLUP);
+    pinMode(FrontLeftBump, INPUT_PULLUP);
+    pinMode(RightBump, INPUT_PULLUP);
+    pinMode(LeftBump, INPUT_PULLUP);
+    pinMode(RearRightBump, INPUT_PULLUP);
+    pinMode(RearLeftBump, INPUT_PULLUP);
     
     
     pinMode(RightIR, INPUT);
