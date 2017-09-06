@@ -1,7 +1,17 @@
+#ifndef PINS_H_DEFINED
+#define PINS_H_DEFINED
+
 //Pins
-  int Microphone_Pin = 35; //Digital
-  int RightMotor = 0;
-  int LeftMotor = 0;
+  // Microphone
+  int Microphone_Pin = 2; //Analog In:  A2
+
+  // Drive Motors
+  int RightMotor_Speed_Pin = 3; // PWM/Digital
+  int RightMotor_Forward_Pin = 24;
+  int RightMotor_Reverse_Pin = 22;
+  int LeftMotor_Speed_Pin = 4; // PWM/Digital
+  int LeftMotor_Forward_Pin = 28;
+  int LeftMotor_Reverse_Pin = 26;
 
   //LED's
   int GreenLED = 34;
@@ -25,14 +35,59 @@
   int FrontBump = 41;
   int FrontRightBump = 38;
   int FrontLeftBump = 40;
-  int RightBump = 36;
+  int RightBump = 30;
   int LeftBump = 39;
-  int RearRightBump = 34;
+  int RearRightBump = 32;
   int RearLeftBump = 37;
 
   //IR SENSOR PINS
-  int RightIR = 0; //Analog
-  int LeftIR = 1;  //Analog
+  int RightIR = 0; //Analog In:  A0
+  int LeftIR = 1;  //Analog In:  A1
 
   //FAN PIN
   int FanPWM = 0;
+
+  int FanPWM = 5;  // PWM/Digital
+
+void setup_pins(){
+    //pinMode(Microphone_Pin, INPUT);  // Already within microphone.cpp code.
+    
+    
+    //pinMode(RightMotor, OUTPUT);  // Already within wheel_motors.cpp code.
+    //pinMode(LeftMotor, OUTPUT);  // Already within wheel_motors.cpp code.
+    
+    
+    pinMode(GreenLED, OUTPUT);
+    pinMode(RedLED, OUTPUT);
+    
+    
+    pinMode(FrontSonarEcho, INPUT);
+    pinMode(FrontSonarTrigger, OUTPUT);
+    pinMode(FrontRightSonarEcho,INPUT);
+    pinMode(FrontRightSonarTrigger, OUTPUT);
+    pinMode(FrontLeftSonarEcho, INPUT);
+    pinMode(FrontLeftSonarTrigger, OUTPUT);
+    pinMode(RearSonarEcho, INPUT);
+    pinMode(RearSonarTrigger, OUTPUT);
+    pinMode(RightSonarEcho, INPUT);
+    pinMode(RightSonarTrigger, OUTPUT);
+    pinMode(LeftSonarEcho, INPUT);
+    pinMode(LeftSonarTrigger, OUTPUT);
+    
+    
+    pinMode(FrontBump, INPUT_PULLUP);
+    pinMode(FrontRightBump, INPUT_PULLUP);
+    pinMode(FrontLeftBump, INPUT_PULLUP);
+    pinMode(RightBump, INPUT_PULLUP);
+    pinMode(LeftBump, INPUT_PULLUP);
+    pinMode(RearRightBump, INPUT_PULLUP);
+    pinMode(RearLeftBump, INPUT_PULLUP);
+    
+    
+    pinMode(RightIR, INPUT);
+    pinMode(LeftIR, INPUT);
+    
+    
+    pinMode(FanPWM, OUTPUT);
+}
+#endif

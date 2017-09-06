@@ -1,11 +1,8 @@
-#include "CommandLoop.h"
+//#include "Pins.h"
 #include "StartState.h"
 #include "SearchState.h"
-//#include "Pins.h"
 
 CommandLoop *command;
-
-int Microphone_Pin = 2; //Analog
 
 const uint16_t TARGET_FREQUENCY(3800);
 const uint16_t MIN_WINDOW_FREQUENCY(0.87 * TARGET_FREQUENCY);
@@ -13,21 +10,34 @@ const uint16_t MAX_WINDOW_FREQUENCY(1.13 * TARGET_FREQUENCY);
 
 
 void setup(){
+#ifdef DEBUG_PRINTING
     Serial.begin(19200);
+#endif
+  setup_pins();
 
   command = new StartState(1, Microphone_Pin, TARGET_FREQUENCY, MIN_WINDOW_FREQUENCY, MAX_WINDOW_FREQUENCY);
+      command->setup();
+    digitalWrite(GreenLED, HIGH);
 }
 
 void loop(){
-  switch(command -> loop()){
+#ifdef PRINT_CURRENT_CONMAND_STATE_DEBUG
+  Serial.print("Current State: ");
+  Serial.print(command->id());
+  Serial.print("\t");
+#endif
+  command->loop();
+  switch(command -> id()){
     case StartState::unique_id:
 	{
 		StartState* startstate_ptr = static_cast<StartState*>(command);
 		if(startstate_ptr->ReceivedTargetSound()){
+#ifndef ONLY_DEBUG_MICROPHONE
 			delete command;  // NB:  startstate_ptr is the same as command, do NOT delete it!
 			command = new SearchState();
       command->setup();
-      digitalWrite(static_cast<SearchState*>(command)->GreenLED, LOW);
+#endif
+      digitalWrite(GreenLED, LOW);
       //Serial.print("Start State Ending");
 		}
 	}
@@ -36,7 +46,7 @@ void loop(){
 	{
 		SearchState* searchstate_ptr(static_cast<SearchState*>(command));
    //Serial.print("Search State Starting");
-     searchstate_ptr->loop();
+     //searchstate_ptr->loop();
 		if(searchstate_ptr->FireExtinguished()){
       //Serial.print("Search State Starting");
 			//end of robot commands
@@ -49,5 +59,11 @@ void loop(){
   //Serial.print("Current State: ");
   //Serial.print(command->id());
   Serial.print("\t");
+		while(1){}
+		}
+	}
+  }
+#ifdef DEBUG_PRINTING
   Serial.println();
+#endif
 }
