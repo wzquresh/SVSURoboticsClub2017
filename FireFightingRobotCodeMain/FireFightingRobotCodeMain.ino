@@ -41,6 +41,7 @@ void loop(){
       //Serial.print("Start State Ending");
 		}
 	}
+	break;
     case SearchState::unique_id:
     //Serial.print("Search State Starting");
 	{
@@ -51,17 +52,10 @@ void loop(){
       //Serial.print("Search State Starting");
 			//end of robot commands
 			//delete command;  // NB:  startstate_ptr is the same as command, do NOT delete it!
-		}
-		//while(1){}
-	}
-  }
-  //Serial.print("\t");
-  //Serial.print("Current State: ");
-  //Serial.print(command->id());
-  Serial.print("\t");
 		while(1){}
 		}
 	}
+	break;
   }
 #ifdef DEBUG_PRINTING
   Serial.println();
