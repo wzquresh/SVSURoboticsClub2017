@@ -8,6 +8,8 @@
 #include "wheel_motors.h"
 #include "Fan_Motor_Control.h"
 
+const long SONAR_FAR_ENCROACHMENT_DISTANCE(30);
+const long SONAR_NEAR_ENCROACHMENT_DISTANCE(7);
 
 class SearchState:public CommandLoop{
   public:  
@@ -160,6 +162,14 @@ SearchState()
         Serial.print("\t");
     #endif
 
+      #ifdef SEARCH_STATE_FLAME_SUMMARY_DEBUG
+          Serial.print("Flame Summary: ");
+          Serial.print(irLeft.flameCase());
+          Serial.print(" ");
+          Serial.print(irRight.flameCase());
+          Serial.print("\t");
+      #endif
+      
     //#ifdef SEARCH_STATE_BUMP_CHECKING_DEBUG
     //    Serial.print("Bump Checking: ");
     //#endif
@@ -396,72 +406,63 @@ SearchState()
           motorL.motors_action(STOP, 0);
           motorR.motors_action(STOP, 0);
           dir = Backward;
-          if(sonarRearR.getsonarvalue() >= MAX){
+          if(sonarRearR.getsonarvalue() >= SONAR_FAR_ENCROACHMENT_DISTANCE){
             //reverse right
             motorL.motors_action(MEDIUM, 0);
             motorR.motors_action(SLOW, 0);
-            break;
-          }else if(sonarRearL.getsonarvalue() >= MAX){
+          }else if(sonarRearL.getsonarvalue() >= SONAR_FAR_ENCROACHMENT_DISTANCE){
             //reverse left
             motorR.motors_action(MEDIUM, 0);
-            motorsL.motors_action(SLOW, 0);
-            break;
+            motorL.motors_action(SLOW, 0);
           }else{
             //reverse
             motorL.motors_action(SLOW, 0);
             motorR.motors_action(SLOW, 0);
-            break;
           }
         }else if(irRight.flameCase() || irLeft.flameCase()){
             dir = Extinguish;
-            break;
           }else{
-            if(sonarFront.getsonarvalue() <= 7){
-              if(sonarFrontR.getsonarvalue() >= MAX){
+            if(sonarFront.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE){
+              if(sonarFrontR.getsonarvalue() >= SONAR_FAR_ENCROACHMENT_DISTANCE){
                 dir = Right;
                 motorR.motors_action(SLOW, 1);
-                break;
-              }else if(sonarFrontR <= 7){
-                if(sonarFrontL >= MAX){
+              }else if(sonarFrontR.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE){
+                if(sonarFrontL.getsonarvalue() >= SONAR_FAR_ENCROACHMENT_DISTANCE){
                   dir = Left;
                   motorL.motors_action(SLOW, 1);
-                  break;
-                }else if(sonarRearR.getsonaravalue() >= MAX){
+                }else if(sonarRearR.getsonarvalue() >= SONAR_FAR_ENCROACHMENT_DISTANCE){
                   dir = Right;
                   motorR.motors_action(SLOW, 0);
                   motorL.motors_action(SLOW, 1);
-                  break;
                 }else{
                   dir = Left;
                   motorL.motors_action(SLOW, 0);
                   motorR.motors_action(SLOW, 1);
-                  break;
                 }
               }
             }
           }
+	break;
       case Backward:
         //will add all rear bumps to this statement
-        if(bumpRear.getValue()){
+        if(bumpRearL.getValue() || bumpRearR.getValue()){
           motorL.motors_action(STOP, 0);
           motorR.motors_action(STOP, 0);
           delay(20);
           dir = Forward;
           motorL.motors_action(MEDIUM, 1);
           motorR.motors_action(MEDIUM, 1);
-          break;
         }else if(irRight.flameCase() || irLeft.flameCase()){
             dir = Extinguish;
-            break;
-        }else if(sonarRear.getsonarvalue() <= 7){ //will add all rear sonar to this statement
+        }else if(sonarRear.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE){ //will add all rear sonar to this statement
           motorL.motors_action(STOP, 0);
           motorR.motors_action(STOP, 0);
           dir = Forward;
           delay(10);
           motorL.motors_action(MEDIUM, 1);
           motorR.motors_action(MEDIUM, 1);
-          break;
         }
+	break;
       case Right:
         if(bumpFrontR.getValue()){
           motorR.motors_action(STOP, 0);
@@ -470,16 +471,14 @@ SearchState()
           dir = Backward;
           motorR.motors_action(SLOW, 0);
           motorL.motors_action(SLOW, 0);
-          break;
         }else if(irRight.flameCase() || irLeft.flameCase()){
             dir = Extinguish;
-            break;
-        }else if(sonarFront.getsonarvalue() <= 7 || sonarFrontR.getsonarvalue() <= 7){
+        }else if(sonarFront.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE || sonarFrontR.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE){
           dir = Forward;
           motorR.motors_action(MEDIUM, 1);
           motorL.motors_action(MEDIUM, 1);
-          break;
         }
+	break;
       case Left:
         if(bumpFrontL.getValue()){
           motorL.motors_action(STOP, 0);
@@ -488,16 +487,14 @@ SearchState()
           dir = Backward;
           motorL.motors_action(SLOW, 0);
           motorR.motors_action(SLOW, 0);
-          break;
         }else if(irRight.flameCase() || irLeft.flameCase()){
             dir = Extinguish;
-            break;
-        }else if(sonarFront.getsonarvalue() <= 7 || sonarFrontL.getsonarvalue() <= 7){
+        }else if(sonarFront.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE || sonarFrontL.getsonarvalue() <= SONAR_NEAR_ENCROACHMENT_DISTANCE){
           dir = Forward;
           motorL.motors_action(MEDIUM, 1);
           motorR.motors_action(MEDIUM, 1);
-          break;
         }
+	break;
       case Extinguish:
         #ifdef SEARCH_STATE_FLAME_DETECTION_DEBUG
             Serial.print("Flame Check ");
@@ -552,14 +549,6 @@ SearchState()
       //    Serial.print("End Flame Check");
       //#endif
           
-      #ifdef SEARCH_STATE_FLAME_SUMMARY_DEBUG
-          Serial.print("Flame Summary: ");
-          Serial.print(irLeft.flameCase());
-          Serial.print(" ");
-          Serial.print(irRight.flameCase());
-          Serial.print("\t");
-      #endif
-      
       #ifdef SEARCH_STATE_FLAME_REACTION_DEBUG
           Serial.print("Flame Reaction ");
       #endif
@@ -621,6 +610,7 @@ SearchState()
           Serial.print("End Flame Reaction");
           Serial.print("\t");
       #endif
+	  break;
     }
   }
   
