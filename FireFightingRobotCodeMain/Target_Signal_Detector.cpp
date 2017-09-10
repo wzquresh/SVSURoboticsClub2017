@@ -149,34 +149,42 @@ bool Target_Signal_Detector::OurPrintVector(double *vData, uint8_t bufferSize, u
 	}
 #endif
 	double overall_avg = avg_total/bufferSize;
-	double target_avg = target_avg_total/target_avg_count;
+	double target_avg = (target_avg_count > 0) ? (target_avg_total/target_avg_count) : 0;
 	double target_normalized = target_avg/overall_avg;
 
 	FIR_Samples_Insert(target_normalized);
 
+#ifdef TARGET_MICROPHONE_SUMMARY_DEBUG
+	Serial.print(" | ");
+#endif
 	double FIR_filter_result(FIR_Samples_Calculate_Result());
+  bool resultant(FIR_filter_result > FIR_FILTER_THRESHOLD);
 
 #ifdef TARGET_MICROPHONE_SUMMARY_DEBUG
-	Serial.print(" || ");
+	Serial.print(" | B:");
+	Serial.print(bufferSize,4);
+	Serial.print(" F: ");
+	Serial.print(samplingFrequency,4);
+	Serial.print(" A: ");
 	Serial.print(avg_total,4);
-	Serial.print("  ");
-	Serial.print(overall_avg,4);
-	Serial.print("  ");
+	Serial.print(" T: ");
 	Serial.print(target_avg_total,4);
-	Serial.print("  ");
+	Serial.print(" C: ");
 	Serial.print(target_avg_count,4);
-	Serial.print("  ");
+	Serial.print(" O: ");
+	Serial.print(overall_avg,4);
+	Serial.print(" TA: ");
 	Serial.print(target_avg,4);
-	Serial.print("  ");
+	Serial.print(" TN: ");
 	Serial.print(target_normalized,4);
-	Serial.print("  ");
+	Serial.print(" R: ");
 	Serial.print(FIR_filter_result, 4);
+	Serial.print(" r: ");
+	Serial.print(resultant);
 	Serial.print("  ");
-	Serial.print((FIR_filter_result > FIR_FILTER_THRESHOLD) ? 1 : 0);
-	Serial.print("\t");
+Serial.println("");
 #endif
-
-	return FIR_filter_result;
+	return resultant;
 }
 
 
@@ -195,8 +203,8 @@ double Target_Signal_Detector::FIR_Samples_Calculate_Result()
 	double fir_total(0);
 	for(int i(0); i < MAX_FIR_SAMPLE_SIZE; ++i)
 		fir_total += FIR_Samples[i];
-#ifdef TARGET_MICROPHONE_DETAILS_DEBUG
-	Serial.print(FIR_filter_result, 4);
+#ifdef TARGET_MICROPHONE_SUMMARY_DEBUG
+	Serial.print(fir_total, 4);
 	Serial.print("  ");
 #endif
 	return fir_total/MAX_FIR_SAMPLE_SIZE;
