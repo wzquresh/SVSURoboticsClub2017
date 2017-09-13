@@ -612,6 +612,7 @@ SearchState()
       #endif
 	  break;
     }
+  Serial.println("");
   }
   
   bool FireExtinguished(){
